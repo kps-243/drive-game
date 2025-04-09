@@ -65,12 +65,15 @@ for (let y = 0; y < lignes; y++) {
 }
 
 // Exemple de fonction pour changer le type d'une cellule (pour placer un rayon par exemple)
-function setRayon(x, y) {
+for (const rayonKey in productsData) {
+  const { x, y } = productsData[rayonKey]
   const cell = grid.find(cell => cell.x === x && cell.y === y)
   if (cell) {
-    cell.type = 'rayon' // Modifie le type de la cellule en "rayon"
+    cell.type = 'rayon'
+    cell.rayonId = rayonKey // <== On garde l'id du rayon (F00, F01...) ici
   }
 }
+
 
 // Exemple de fonction pour changer le type de retour à "chemin"
 function setChemin(x, y) {
@@ -79,11 +82,6 @@ function setChemin(x, y) {
     cell.type = 'chemin' // Modifie le type de la cellule en "chemin"
   }
 };
-
-for (const rayonKey in productsData) {
-  const { x, y } = productsData[rayonKey]
-  setRayon(x, y)
-}
 
 console.log(grid)
   // Utiliser les données importées depuis products.json

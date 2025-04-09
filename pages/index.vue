@@ -92,6 +92,12 @@
         </div>
         <p class="mt-2 text-sm">{{ message }}</p>
       </div>
+      <!-- Bouton de reprise -->
+        <div v-if="jeuEnPause">
+          <button @click="recommencerTour" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+            Joueur Suivant
+          </button>
+        </div>
     </div>
   
     <!-- Phase de résultat -->
@@ -151,7 +157,8 @@
   const nbJoueurs = ref(1)
   const nomsJoueurs = ref([])
   const phase = ref("selection") // "selection", "jeu", "resultat"
-  
+  const jeuEnPause = ref(false)
+
   function formatTemps(temps) {
     const minutes = Math.floor(temps / 6000)
     const secondes = Math.floor((temps % 6000) / 100)
@@ -173,20 +180,22 @@
   }
   
   function initialiserTour() {
-    produitSelectionne.value = ""
-    const joueur = joueurs.value[joueurActuelIndex.value]
-    joueur.score = 0
-    joueur.produitActuelIndex = 0
-    joueur.listeDeCourses = genererListeDeCourses()
-    produitActuel.value = joueur.listeDeCourses[joueur.produitActuelIndex]
-    score.value = 0
-    temps.value = 0
-    jeuCommence.value = true
-  
-    chronoInterval.value = setInterval(() => {
+  produitSelectionne.value = ""
+  const joueur = joueurs.value[joueurActuelIndex.value]
+  joueur.score = 0
+  joueur.produitActuelIndex = 0
+  joueur.listeDeCourses = genererListeDeCourses()
+  produitActuel.value = joueur.listeDeCourses[joueur.produitActuelIndex]
+  score.value = 0
+  temps.value = 0
+  jeuCommence.value = true
+
+  chronoInterval.value = setInterval(() => {
+    if (!jeuEnPause.value) {
       temps.value++
-    }, 10)
-  }
+    }
+  }, 10)
+}
   
   function genererListeDeCourses() {
     const tousLesProduits = []
@@ -235,9 +244,17 @@
       phase.value = "resultat"
       jeuCommence.value = false
     } else {
-      initialiserTour()
+      // Mise en pause après chaque tour
+      jeuEnPause.value = true
+      clearInterval(chronoInterval.value)
     }
   }
+  
+  function recommencerTour() {
+    jeuEnPause.value = false
+    initialiserTour() // Démarre le tour du joueur actuel
+  }
+
   
   onMounted(() => {
     produitsParRayon.value = productsData

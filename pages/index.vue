@@ -1,201 +1,265 @@
 <template>
-    <div>
-    <div class="game-container">
-        <!-- Section de démarrage -->
-    <div v-if="!jeuCommence" class="start-section">
-      <button @click="demarrerJeu" class="start-button">Démarrer le jeu</button>
+    <!-- Phase de sélection des joueurs -->
+    <div v-if="phase === 'selection'" class="p-4">
+      <h2 class="text-xl font-bold mb-2">Sélection du mode</h2>
+      <label class="block mb-2">
+        Nombre de joueurs :
+        <input type="number" v-model="nbJoueurs" min="1" max="4" class="border p-1 ml-2 w-16" />
+      </label>
+  
+      <div v-for="(nom, index) in nbJoueurs" :key="index" class="mb-2">
+        <label>
+          Nom du joueur {{ index + 1 }} :
+          <input v-model="nomsJoueurs[index]" class="border p-1 ml-2" />
+        </label>
+      </div>
+  
+      <button @click="commencerPartie" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Commencer le jeu
+      </button>
     </div>
-
-    <!-- Section de jeu (visible après le démarrage) -->
-    <div v-else class="game-section">
-      <!-- Affichage du chrono -->
-      <div class="chrono">
-        <h3>Temps : {{ formatTemps(temps) }}</h3>
-      </div>
-
-      <!-- Affichage du score -->
-      <div class="score">
-        <h2>Score : {{ score }}</h2>
-      </div>
-
+  
+    <!-- Phase de jeu -->
+    <div v-if="phase === 'jeu'" class="p-4">
+      <h2 class="text-lg font-bold mb-2">Tour de : {{ joueurs[joueurActuelIndex]?.nom }}</h2>
+      <p class="mb-1">Temps : {{ formatTemps(temps) }}</p>
+      <p class="mb-3">Score : {{ joueurs[joueurActuelIndex]?.score }}</p>
       <div v-if="produitActuel">
-        <p><strong>Produit à trouver :</strong> {{ produitActuel.nom }}</p>
-        <p><strong>Adresse</strong> {{ produitActuel.rayonId + produitActuel.emplacement }}</p>
-        <p class="mt-2 text-lg font-semibold" :class="message.startsWith('✅') ? 'text-green-600' : 'text-red-600'">
-          {{ message }}
-        </p>
-      </div>
-      <button @click="validerProduit">Valider</button>
-
-          <!-- Grille -->
-          <div class="store-grid">
-            <div
-              v-for="(cell, index) in grid"
-              :key="index"
-              class="grid-cell"
-              :class="{
-                selected: selectedCell?.adresse === cell.adresse,
-                player: playerPosition?.x === cell.x && playerPosition?.y === cell.y,
-                rayon: cell.type === 'rayon'
-              }"
-              @click="selectCell(cell)"
-            >
-              <div v-if="cell.type === 'rayon'">{{ cell.rayonId }}</div>
-              <div v-if="playerPosition?.x === cell.x && playerPosition?.y === cell.y" :class="{ 'slow-mode': modePrise }" class="player-icon">⬤</div>
-            </div>
-          </div>
-      
-          <!-- Bouton d'action -->
-          <div class="action-panel">
-            <button @click="modePrise = !modePrise">
-              {{ modePrise ? 'Quitter mode prise' : 'Activer mode prise' }}
-            </button>
-          </div>
-      
-          <!-- Détails (uniquement si en mode prise + à côté d’un rayon) -->
-          <div v-if="modePrise && selectedRayon" class="details-section">
-            <div class="info-panel">
-              <h3>Détails du rayon {{ selectedRayon }}</h3>
-              <p><strong>Position joueur :</strong> {{ playerPosition.x }} / {{ playerPosition.y }}</p>
-            </div>
-        
-            <div v-if="produitsParRayon[selectedRayon]" class="product-panel">
-              <h3>Choisis le bon produit :</h3>
-              <div v-if="produitsParRayon[selectedRayon]?.produits" class="product-panel">
-                <h3>Choisis le bon produit :</h3>
-                <select v-model="produitSelectionne" @change="validerProduit">
-                  <option disabled value="">-- Sélectionner un produit --</option>
-                  <option
-                    v-for="(produit, index) in produitsParRayon[selectedRayon].produits"
-                    :key="index"
-                    :value="produit.nom"
-                  >
-                    {{ produit.nom }} - {{ produit.quantite }}
-                  </option>
-                </select>
-              </div>
-            </div>
-            </div>
-                
-              
-                  <!-- Message après validation -->
-      <div v-if="message" class="message">
-        <p>{{ message }}</p>
-      </div>
-            </div>
+          <p><strong>Produit à trouver :</strong> {{ produitActuel.nom }}</p>
+          <p><strong>Adresse :</strong> {{ produitActuel.rayonId + produitActuel.emplacement }}</p>
+      </div>  
+      <button
+          @click="modePrise = !modePrise"
+          class="bg-blue-600 hover:bg-blue-700 transition px-4 py-2 text-white rounded shadow-md"
+        >
+          {{ modePrise ? '🚪 Quitter mode prise' : '🛒 Activer mode prise' }}
+        </button>
+      <!-- Grille -->
+      <div class="grid" :style="`grid-template-columns: repeat(${colonnes}, 30px);`">
+        <div
+          v-for="cell in grid"
+          :key="`${cell.x}-${cell.y}`"
+          :class="[
+            'w-7 h-7 border text-xs flex items-center justify-center cursor-pointer',
+            cell.type === 'rayon' ? 'bg-yellow-300' : 'bg-gray-100',
+            cell.x === playerPosition.x && cell.y === playerPosition.y ? 'border-4 border-red-500' : '',
+          ]"
+          @click="selectCell(cell)"
+        >
+          {{ cell.rayonId || '' }}
         </div>
+      </div>
+
+      <!-- Détails (uniquement si en mode prise + à côté d’un rayon) -->
+        <div v-if="modePrise && selectedRayon" class="details-section">
+          <div class="info-panel">
+            <h3>Détails du rayon {{ selectedRayon }}</h3>
+            <p><strong>Position joueur :</strong> {{ playerPosition.x }} / {{ playerPosition.y }}</p>
+          </div>
+      
+          <div v-if="produitsParRayon[selectedRayon]?.produits" class="product-panel">
+            <h3>Choisis le bon produit :</h3>
+            <select v-model="produitSelectionne" @change="validerProduit">
+              <option disabled value="">-- Sélectionner un produit --</option>
+              <option
+                v-for="(produit, index) in produitsParRayon[selectedRayon].produits"
+                :key="index"
+                :value="produit.nom"
+              >
+                {{ produit.nom }} - {{ produit.quantite }}
+              </option>
+            </select>
+          </div>
+        </div>
+  
+      <div class="mt-4">
+        <p class="mb-2">Rayon sélectionné : {{ selectedRayon || 'Aucun' }}</p>
+        <div v-if="selectedRayon">
+          <label for="produit">Choisis un produit :</label>
+          <select id="produit" v-model="produitSelectionne" class="border ml-2">
+            <option disabled value="">-- Choisir --</option>
+            <option
+              v-for="produit in produitsParRayon[selectedRayon]?.produits || []"
+              :key="produit.nom"
+              :value="produit.nom"
+            >
+              {{ produit.nom }}
+            </option>
+          </select>
+          <button @click="validerProduit" class="ml-4 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
+            Valider
+          </button>
+        </div>
+        <p class="mt-2 text-sm">{{ message }}</p>
+      </div>
+    </div>
+  
+    <!-- Phase de résultat -->
+    <div v-if="phase === 'resultat'" class="p-4">
+      <h2 class="text-xl font-bold mb-4">🎉 Fin de la partie !</h2>
+      <table class="table-auto border border-collapse w-full mb-4">
+        <thead class="bg-gray-200">
+          <tr>
+            <th class="border px-4 py-2">Joueur</th>
+            <th class="border px-4 py-2">Score</th>
+            <th class="border px-4 py-2">Temps</th>
+          </tr>
+        </thead>
+        <tbody>
+          <tr
+            v-for="joueur in joueurs.slice().sort((a, b) => b.score - a.score || a.temps - b.temps)"
+            :key="joueur.nom"
+          >
+            <td class="border px-4 py-2">{{ joueur.nom }}</td>
+            <td class="border px-4 py-2">{{ joueur.score }}</td>
+            <td class="border px-4 py-2">{{ formatTemps(joueur.temps) }}</td>
+          </tr>
+        </tbody>
+      </table>
+  
+      <button @click="phase = 'selection'" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
+        Rejouer
+      </button>
     </div>
   </template>
   
   
+  
   <script setup>
   import { ref, onMounted } from 'vue'
-  import productsData from '../data/products.json' // Assure-toi que le chemin du fichier est correct
+  import productsData from '../data/products.json'
   
-  const selectedCell = ref(null)
-const playerPosition = ref({ x: 0, y: 0 })
-const selectedRayon = ref(null)
-const modePrise = ref(false)
-
-const colonnes = 20 // 20 colonnes
-const lignes = 8 // 8 lignes
-const grid = []
-const listeDeCourses = ref([])
-const score = ref(0)
-const temps = ref(0) // Temps en centièmes de seconde
-const message = ref("")
-const jeuCommence = ref(false) // Indicateur pour savoir si le jeu est commencé
-const chronoInterval = ref(null) // Pour stocker l'intervalle du chrono
-
-const produitActuel = ref(null)
-const produitSelectionne = ref("")
-const produitActuelIndex = ref(0)
-
-// Fonction de formatage du temps
-function formatTemps(temps) {
-  const minutes = Math.floor(temps / 6000)
-  const secondes = Math.floor((temps % 6000) / 100)
-  const centiemes = temps % 100
-  return `${String(minutes).padStart(2, '0')}:${String(secondes).padStart(2, '0')}:${String(centiemes).padStart(2, '0')}`
-}
-
-// Fonction pour démarrer le jeu
-function demarrerJeu() {
-  jeuCommence.value = true
-  score.value = 0
-  temps.value = 0
-  produitActuelIndex.value = 0
-  message.value = ""
-
-  // Démarrer le chrono
-  chronoInterval.value = setInterval(() => {
-    temps.value++
-  }, 10) // Incrémenter le chrono toutes les 10ms (centièmes de seconde)
-  
-  genererListeDeCourses()
-}
-
-// Fonction pour arrêter le chrono à la fin du jeu
-function arreterChrono() {
-  clearInterval(chronoInterval.value)
-  message.value = `Fin du jeu ! Score final : ${score.value}. Temps : ${formatTemps(temps.value)}`
-}
-
-// const produitActuel = computed(() => listeDeCourses.value[produitActuelIndex.value])
-
-function genererListeDeCourses() {
-  const tousLesProduits = []
-
-  for (const rayonId in productsData) {
-    const produits = productsData[rayonId].produits || productsData[rayonId] // selon structure
-    produits.forEach(produit => {
-      tousLesProduits.push({
-        ...produit,
-        rayonId,
-        position: { x: productsData[rayonId].x, y: productsData[rayonId].y }
-      })
-    })
-  }
-
-  const produitsMelanges = tousLesProduits.sort(() => 0.5 - Math.random())
-  listeDeCourses.value = produitsMelanges.slice(0, 2)
-  produitActuel.value = listeDeCourses.value[produitActuelIndex.value]
-}
-// Créer une grille vide avec 20 colonnes et 8 lignes
-for (let y = 0; y < lignes; y++) {
-  for (let x = 0; x < colonnes; x++) {
-    grid.push({
-      x,
-      y,
-      adresse: `Cell${x + 1}-${y + 1}`,
-      type: 'chemin', // Par défaut, chaque cellule est un "chemin"
-    })
-  }
-}
-
-// Exemple de fonction pour changer le type d'une cellule (pour placer un rayon par exemple)
-for (const rayonKey in productsData) {
-  const { x, y } = productsData[rayonKey]
-  const cell = grid.find(cell => cell.x === x && cell.y === y)
-  if (cell) {
-    cell.type = 'rayon'
-    cell.rayonId = rayonKey // <== On garde l'id du rayon (F00, F01...) ici
-  }
-}
-
-
-console.log(grid)
-  // Utiliser les données importées depuis products.json
+  const colonnes = 20
+  const lignes = 8
+  const grid = []
   const produitsParRayon = ref({})
+  const listeDeCourses = ref([])
+  const joueurs = ref([])
+  const joueurActuelIndex = ref(0)
+  const score = ref(0)
+  const temps = ref(0)
+  const produitActuel = ref(null)
+  const produitSelectionne = ref("")
+  const produitActuelIndex = ref(0)
+  const chronoInterval = ref(null)
+  const jeuCommence = ref(false)
+  const modePrise = ref(false)
+  const selectedCell = ref(null)
+  const selectedRayon = ref(null)
+  const playerPosition = ref({ x: 0, y: 0 })
+  const message = ref("")
+  const nbJoueurs = ref(1)
+  const nomsJoueurs = ref([])
+  const phase = ref("selection") // "selection", "jeu", "resultat"
   
-  // Charger les produits lors du montage du composant
+  function formatTemps(temps) {
+    const minutes = Math.floor(temps / 6000)
+    const secondes = Math.floor((temps % 6000) / 100)
+    const centiemes = temps % 100
+    return `${String(minutes).padStart(2, '0')}:${String(secondes).padStart(2, '0')}:${String(centiemes).padStart(2, '0')}`
+  }
+  
+  function commencerPartie() {
+    phase.value = 'jeu'
+    joueurs.value = nomsJoueurs.value.map(nom => ({
+      nom,
+      score: 0,
+      temps: 0,
+      listeDeCourses: [],
+      produitActuelIndex: 0
+    }))
+    joueurActuelIndex.value = 0
+    initialiserTour()
+  }
+  
+  function initialiserTour() {
+    produitSelectionne.value = ""
+    const joueur = joueurs.value[joueurActuelIndex.value]
+    joueur.score = 0
+    joueur.produitActuelIndex = 0
+    joueur.listeDeCourses = genererListeDeCourses()
+    produitActuel.value = joueur.listeDeCourses[joueur.produitActuelIndex]
+    score.value = 0
+    temps.value = 0
+    jeuCommence.value = true
+  
+    chronoInterval.value = setInterval(() => {
+      temps.value++
+    }, 10)
+  }
+  
+  function genererListeDeCourses() {
+    const tousLesProduits = []
+    for (const rayonId in productsData) {
+      const produits = productsData[rayonId].produits || productsData[rayonId]
+      produits.forEach(produit => {
+        tousLesProduits.push({
+          ...produit,
+          rayonId,
+          position: { x: productsData[rayonId].x, y: productsData[rayonId].y }
+        })
+      })
+    }
+    return tousLesProduits.sort(() => 0.5 - Math.random()).slice(0, 2)
+  }
+  
+  function validerProduit() {
+    const joueur = joueurs.value[joueurActuelIndex.value]
+    const produit = joueur.listeDeCourses[joueur.produitActuelIndex]
+    const estCorrect = produitSelectionne.value === produit.nom
+  
+    if (estCorrect) {
+      message.value = `✅ Bon produit trouvé : ${produit.nom}`
+      joueur.score++
+      joueur.produitActuelIndex++
+      produitSelectionne.value = ""
+  
+      if (joueur.produitActuelIndex >= joueur.listeDeCourses.length) {
+        joueur.temps = temps.value
+        clearInterval(chronoInterval.value)
+        passerAuJoueurSuivant()
+        return
+      } else {
+        produitActuel.value = joueur.listeDeCourses[joueur.produitActuelIndex]
+      }
+    } else {
+      message.value = `❌ Mauvais produit. Produit attendu : ${produit.nom}`
+    }
+  
+    setTimeout(() => { message.value = "" }, 2000)
+  }
+  
+  function passerAuJoueurSuivant() {
+    joueurActuelIndex.value++
+    if (joueurActuelIndex.value >= joueurs.value.length) {
+      phase.value = "resultat"
+      jeuCommence.value = false
+    } else {
+      initialiserTour()
+    }
+  }
+  
   onMounted(() => {
-    // Vérifier que les données sont bien chargées
-    console.log('Produits chargés:', productsData)
-  
-    // Assigner les produits aux rayons
     produitsParRayon.value = productsData
-  genererListeDeCourses()
+    for (let y = 0; y < lignes; y++) {
+      for (let x = 0; x < colonnes; x++) {
+        grid.push({
+          x,
+          y,
+          adresse: `Cell${x + 1}-${y + 1}`,
+          type: 'chemin',
+        })
+      }
+    }
+    for (const rayonKey in productsData) {
+      const { x, y } = productsData[rayonKey]
+      const cell = grid.find(cell => cell.x === x && cell.y === y)
+      if (cell) {
+        cell.type = 'rayon'
+        cell.rayonId = rayonKey
+      }
+    }
+  
     window.addEventListener('keydown', e => {
       if (e.key === 'ArrowUp') movePlayer(0, -1)
       if (e.key === 'ArrowDown') movePlayer(0, 1)
@@ -204,78 +268,40 @@ console.log(grid)
     })
   })
   
+  let canMove = true
+  function movePlayer(xDelta, yDelta) {
+    if (!canMove) return
+    const newX = playerPosition.value.x + xDelta
+    const newY = playerPosition.value.y + yDelta
+    const newCell = grid.find(c => c.x === newX && c.y === newY)
+  
+    if (newCell && newCell.type === 'chemin') {
+      playerPosition.value = { x: newX, y: newY }
+      selectedCell.value = newCell
+      if (modePrise.value) {
+        canMove = false
+        setTimeout(() => { canMove = true }, 400)
+        const voisins = [
+          getCell(newX - 1, newY),
+          getCell(newX + 1, newY),
+          getCell(newX, newY - 1),
+          getCell(newX, newY + 1)
+        ]
+        const rayonCible = voisins.find(c => c?.type === 'rayon')
+        selectedRayon.value = rayonCible?.rayonId || null
+      }
+    }
+  }
+  
   function getCell(x, y) {
     return grid.find(c => c.x === x && c.y === y)
   }
   
-  // Charger les produits lors du montage du composant
-  let canMove = true // Contrôle si le joueur peut se déplacer
-
-function movePlayer(xDelta, yDelta) {
-  if (!canMove) return // Bloque le déplacement si on est en attente
-
-  const newX = playerPosition.value.x + xDelta
-  const newY = playerPosition.value.y + yDelta
-  const newCell = getCell(newX, newY)
-
-  if (newCell && newCell.type === 'chemin') {
-    playerPosition.value = { x: newX, y: newY }
-    selectedCell.value = newCell
-
-    if (modePrise.value) {
-      // Lancer une animation de ralentissement (simulation par un timeout)
-      canMove = false
-      setTimeout(() => {
-        canMove = true
-      }, 400) // 400ms de délai entre les déplacements
-    }
-
-    if (modePrise.value) {
-      const voisins = [
-        getCell(newX - 1, newY),
-        getCell(newX + 1, newY),
-        getCell(newX, newY - 1),
-        getCell(newX, newY + 1)
-      ]
-      const rayonCible = voisins.find(c => c?.type === 'rayon')
-      if (rayonCible) {
-        selectedRayon.value = rayonCible.rayonId
-      } else {
-        selectedRayon.value = null
-      }
-    }
-  }
-}
-
-  
   function selectCell(cell) {
     selectedCell.value = cell
   }
-  // Fonction pour valider un produit
-function validerProduit() {
-  if (!produitActuel.value || !produitSelectionne.value) return
-
-  const estCorrect = produitSelectionne.value === produitActuel.value.nom
-
-  if (estCorrect) {
-    message.value = `✅ Bon produit trouvé : ${produitActuel.value.nom}`
-    score.value++
-    produitActuelIndex.value++
-    produitSelectionne.value = ""
-
-    if (produitActuelIndex.value >= listeDeCourses.value.length) {
-      arreterChrono() // Arrêter le chrono et afficher le score final si tous les produits sont trouvés
-    }
-  } else {
-    message.value = `❌ Mauvais produit. Produit attendu : ${produitActuel.value.nom}`
-  }
-
-  setTimeout(() => {
-    message.value = ""
-  }, 2000)
-}
-
   </script>
+  
   
   <style scoped>
 

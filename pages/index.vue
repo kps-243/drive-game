@@ -1,68 +1,89 @@
 <template>
-    <div class="store-container">
-        <div class="score">
-          <h2>Score : {{ score }}</h2>
-        </div>
-      <!-- Grille -->
-      <div class="store-grid">
-        <div
-          v-for="(cell, index) in grid"
-          :key="index"
-          class="grid-cell"
-          :class="{
-            selected: selectedCell?.adresse === cell.adresse,
-            player: playerPosition?.x === cell.x && playerPosition?.y === cell.y,
-            rayon: cell.type === 'rayon'
-          }"
-          @click="selectCell(cell)"
-        >
-          <div v-if="cell.type === 'rayon'">{{ cell.rayonId }}</div>
-          <div v-if="playerPosition?.x === cell.x && playerPosition?.y === cell.y" :class="{ 'slow-mode': modePrise }" class="player-icon">⬤</div>
-        </div>
-      </div>
-  
-      <!-- Bouton d'action -->
-      <div class="action-panel">
-        <button @click="modePrise = !modePrise">
-          {{ modePrise ? 'Quitter mode prise' : 'Activer mode prise' }}
-        </button>
-      </div>
-  
-      <!-- Détails (uniquement si en mode prise + à côté d’un rayon) -->
-      <div v-if="modePrise && selectedRayon" class="details-section">
-  <div class="info-panel">
-    <h3>Détails du rayon {{ selectedRayon }}</h3>
-    <p><strong>Position joueur :</strong> {{ playerPosition.x }} / {{ playerPosition.y }}</p>
-  </div>
-
-  <div v-if="produitsParRayon[selectedRayon]" class="product-panel">
-    <h3>Choisis le bon produit :</h3>
-    <div v-if="produitsParRayon[selectedRayon]?.produits" class="product-panel">
-      <h3>Choisis le bon produit :</h3>
-      <select v-model="produitSelectionne" @change="validerProduit">
-        <option disabled value="">-- Sélectionner un produit --</option>
-        <option
-          v-for="(produit, index) in produitsParRayon[selectedRayon].produits"
-          :key="index"
-          :value="produit.nom"
-        >
-          {{ produit.nom }} - {{ produit.quantite }}
-        </option>
-      </select>
+    <div>
+    <div class="game-container">
+        <!-- Section de démarrage -->
+    <div v-if="!jeuCommence" class="start-section">
+      <button @click="demarrerJeu" class="start-button">Démarrer le jeu</button>
     </div>
+
+    <!-- Section de jeu (visible après le démarrage) -->
+    <div v-else class="game-section">
+      <!-- Affichage du chrono -->
+      <div class="chrono">
+        <h3>Temps : {{ formatTemps(temps) }}</h3>
+      </div>
+
+      <!-- Affichage du score -->
+      <div class="score">
+        <h2>Score : {{ score }}</h2>
+      </div>
+
+      <div v-if="produitActuel">
+        <p><strong>Produit à trouver :</strong> {{ produitActuel.nom }}</p>
+        <p><strong>Adresse</strong> {{ produitActuel.rayonId + produitActuel.emplacement }}</p>
+        <p class="mt-2 text-lg font-semibold" :class="message.startsWith('✅') ? 'text-green-600' : 'text-red-600'">
+          {{ message }}
+        </p>
+      </div>
+      <button @click="validerProduit">Valider</button>
+
+          <!-- Grille -->
+          <div class="store-grid">
+            <div
+              v-for="(cell, index) in grid"
+              :key="index"
+              class="grid-cell"
+              :class="{
+                selected: selectedCell?.adresse === cell.adresse,
+                player: playerPosition?.x === cell.x && playerPosition?.y === cell.y,
+                rayon: cell.type === 'rayon'
+              }"
+              @click="selectCell(cell)"
+            >
+              <div v-if="cell.type === 'rayon'">{{ cell.rayonId }}</div>
+              <div v-if="playerPosition?.x === cell.x && playerPosition?.y === cell.y" :class="{ 'slow-mode': modePrise }" class="player-icon">⬤</div>
+            </div>
           </div>
+      
+          <!-- Bouton d'action -->
+          <div class="action-panel">
+            <button @click="modePrise = !modePrise">
+              {{ modePrise ? 'Quitter mode prise' : 'Activer mode prise' }}
+            </button>
+          </div>
+      
+          <!-- Détails (uniquement si en mode prise + à côté d’un rayon) -->
+          <div v-if="modePrise && selectedRayon" class="details-section">
+            <div class="info-panel">
+              <h3>Détails du rayon {{ selectedRayon }}</h3>
+              <p><strong>Position joueur :</strong> {{ playerPosition.x }} / {{ playerPosition.y }}</p>
+            </div>
+        
+            <div v-if="produitsParRayon[selectedRayon]" class="product-panel">
+              <h3>Choisis le bon produit :</h3>
+              <div v-if="produitsParRayon[selectedRayon]?.produits" class="product-panel">
+                <h3>Choisis le bon produit :</h3>
+                <select v-model="produitSelectionne" @change="validerProduit">
+                  <option disabled value="">-- Sélectionner un produit --</option>
+                  <option
+                    v-for="(produit, index) in produitsParRayon[selectedRayon].produits"
+                    :key="index"
+                    :value="produit.nom"
+                  >
+                    {{ produit.nom }} - {{ produit.quantite }}
+                  </option>
+                </select>
+              </div>
+            </div>
+            </div>
+                
+              
+                  <!-- Message après validation -->
+      <div v-if="message" class="message">
+        <p>{{ message }}</p>
+      </div>
+            </div>
         </div>
-        <div v-if="produitActuel">
-          <p><strong>Produit à trouver :</strong> {{ produitActuel.nom }}</p>
-          <p><strong>Rayon :</strong> {{ produitActuel.rayonId }}</p>
-          <p><strong>Emplacement :</strong> {{ produitActuel.emplacement }}</p>
-          <p class="mt-2 text-lg font-semibold" :class="message.startsWith('✅') ? 'text-green-600' : 'text-red-600'">
-            {{ message }}
-          </p>
-
-        </div>
-        <button @click="validerProduit">Valider</button>
-
     </div>
   </template>
   
@@ -80,12 +101,47 @@ const colonnes = 20 // 20 colonnes
 const lignes = 8 // 8 lignes
 const grid = []
 const listeDeCourses = ref([])
+const score = ref(0)
+const temps = ref(0) // Temps en centièmes de seconde
+const message = ref("")
+const jeuCommence = ref(false) // Indicateur pour savoir si le jeu est commencé
+const chronoInterval = ref(null) // Pour stocker l'intervalle du chrono
+
+const produitActuel = ref(null)
 const produitSelectionne = ref("")
 const produitActuelIndex = ref(0)
-const score = ref(0)
-const message = ref("")
 
-const produitActuel = computed(() => listeDeCourses.value[produitActuelIndex.value])
+// Fonction de formatage du temps
+function formatTemps(temps) {
+  const minutes = Math.floor(temps / 6000)
+  const secondes = Math.floor((temps % 6000) / 100)
+  const centiemes = temps % 100
+  return `${String(minutes).padStart(2, '0')}:${String(secondes).padStart(2, '0')}:${String(centiemes).padStart(2, '0')}`
+}
+
+// Fonction pour démarrer le jeu
+function demarrerJeu() {
+  jeuCommence.value = true
+  score.value = 0
+  temps.value = 0
+  produitActuelIndex.value = 0
+  message.value = ""
+
+  // Démarrer le chrono
+  chronoInterval.value = setInterval(() => {
+    temps.value++
+  }, 10) // Incrémenter le chrono toutes les 10ms (centièmes de seconde)
+  
+  genererListeDeCourses()
+}
+
+// Fonction pour arrêter le chrono à la fin du jeu
+function arreterChrono() {
+  clearInterval(chronoInterval.value)
+  message.value = `Fin du jeu ! Score final : ${score.value}. Temps : ${formatTemps(temps.value)}`
+}
+
+// const produitActuel = computed(() => listeDeCourses.value[produitActuelIndex.value])
 
 function genererListeDeCourses() {
   const tousLesProduits = []
@@ -101,12 +157,9 @@ function genererListeDeCourses() {
     })
   }
 
-  // Mélanger les produits
   const produitsMelanges = tousLesProduits.sort(() => 0.5 - Math.random())
-
-  // En prendre 20 max
-  listeDeCourses.value = produitsMelanges.slice(0, 20)
-  produitActuelIndex.value = 0
+  listeDeCourses.value = produitsMelanges.slice(0, 2)
+  produitActuel.value = listeDeCourses.value[produitActuelIndex.value]
 }
 // Créer une grille vide avec 20 colonnes et 8 lignes
 for (let y = 0; y < lignes; y++) {
@@ -130,14 +183,6 @@ for (const rayonKey in productsData) {
   }
 }
 
-
-// Exemple de fonction pour changer le type de retour à "chemin"
-function setChemin(x, y) {
-  const cell = grid.find(cell => cell.x === x && cell.y === y)
-  if (cell) {
-    cell.type = 'chemin' // Modifie le type de la cellule en "chemin"
-  }
-};
 
 console.log(grid)
   // Utiliser les données importées depuis products.json
@@ -206,25 +251,28 @@ function movePlayer(xDelta, yDelta) {
   function selectCell(cell) {
     selectedCell.value = cell
   }
-  function validerProduit() {
+  // Fonction pour valider un produit
+function validerProduit() {
   if (!produitActuel.value || !produitSelectionne.value) return
 
   const estCorrect = produitSelectionne.value === produitActuel.value.nom
 
   if (estCorrect) {
     message.value = `✅ Bon produit trouvé : ${produitActuel.value.nom}`
-    setTimeout(() => {
-      message.value = ""
-    }, 2000)
     score.value++
     produitActuelIndex.value++
     produitSelectionne.value = ""
+
+    if (produitActuelIndex.value >= listeDeCourses.value.length) {
+      arreterChrono() // Arrêter le chrono et afficher le score final si tous les produits sont trouvés
+    }
   } else {
     message.value = `❌ Mauvais produit. Produit attendu : ${produitActuel.value.nom}`
-    setTimeout(() => {
-      message.value = ""
-    }, 2000)
   }
+
+  setTimeout(() => {
+    message.value = ""
+  }, 2000)
 }
 
   </script>

@@ -1,0 +1,69 @@
+{
+    "F00": {
+      "x": 19,
+      "y": 8,
+      "produits": [
+        { "nom": "Lait", "quantite": 12, "emplacement": "A1" },
+        { "nom": "Yaourt", "quantite": 6, "emplacement": "A2" },
+        { "nom": "Fromage", "quantite": 10, "emplacement": "A3" },
+        { "nom": "Beurre", "quantite": 5, "emplacement": "A4" },
+        { "nom": "Crème fraîche", "quantite": 8, "emplacement": "A5" }
+      ]
+    },
+    "F01": {
+      "x": 12,
+      "y": 7,
+      "produits": [
+        { "nom": "Pomme", "quantite": 20, "emplacement": "B1" },
+        { "nom": "Poire", "quantite": 10, "emplacement": "B2" },
+        { "nom": "Banane", "quantite": 15, "emplacement": "B3" },
+        { "nom": "Orange", "quantite": 8, "emplacement": "B4" },
+        { "nom": "Fraises", "quantite": 5, "emplacement": "B5" }
+      ]
+    },
+    "F02": {
+      "x": 3,
+      "y": 3,
+      "produits": [
+        { "nom": "Biscuit", "quantite": 15, "emplacement": "C1" },
+        { "nom": "Chips", "quantite": 9, "emplacement": "C2" },
+        { "nom": "Tartines", "quantite": 12, "emplacement": "C3" },
+        { "nom": "Crackers", "quantite": 7, "emplacement": "C4" },
+        { "nom": "Pain", "quantite": 25, "emplacement": "C5" }
+      ]
+    },
+    "F03": {
+      "x": 4,
+      "y": 1,
+      "produits": [
+        { "nom": "Boisson gazeuse", "quantite": 5, "emplacement": "D1" },
+        { "nom": "Eau", "quantite": 20, "emplacement": "D2" },
+        { "nom": "Jus d'orange", "quantite": 18, "emplacement": "D3" },
+        { "nom": "Café", "quantite": 10, "emplacement": "D4" },
+        { "nom": "Thé", "quantite": 10, "emplacement": "D5" }
+      ]
+    },
+    "F04": {
+      "x": 11,
+      "y": 3,
+      "produits": [
+        { "nom": "Riz", "quantite": 8, "emplacement": "E1" },
+        { "nom": "Pâtes", "quantite": 7, "emplacement": "E2" },
+        { "nom": "Couscous", "quantite": 5, "emplacement": "E3" },
+        { "nom": "Quinoa", "quantite": 4, "emplacement": "E4" },
+        { "nom": "Lentilles", "quantite": 9, "emplacement": "E5" }
+      ]
+    },
+    "F05": {
+      "x": 6,
+      "y": 1,
+      "produits": [
+        { "nom": "Jus de fruits", "quantite": 10, "emplacement": "F1" },
+        { "nom": "Légumes frais", "quantite": 13, "emplacement": "F2" },
+        { "nom": "Tomates", "quantite": 6, "emplacement": "F3" },
+        { "nom": "Concombres", "quantite": 7, "emplacement": "F4" },
+        { "nom": "Carottes", "quantite": 20, "emplacement": "F5" }
+      ]
+    }
+  }
+  

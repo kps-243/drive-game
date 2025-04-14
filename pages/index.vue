@@ -1,140 +1,216 @@
 <template>
-    <!-- Phase de sélection des joueurs -->
-    <div v-if="phase === 'selection'" class="p-4">
-      <h2 class="text-xl font-bold mb-2">Sélection du mode</h2>
-      <label class="block mb-2">
-        Nombre de joueurs :
-        <input type="number" v-model="nbJoueurs" min="1" max="4" class="border p-1 ml-2 w-16" />
-      </label>
-  
-      <div v-for="(nom, index) in nbJoueurs" :key="index" class="mb-2">
-        <label>
-          Nom du joueur {{ index + 1 }} :
-          <input v-model="nomsJoueurs[index]" class="border p-1 ml-2" />
+    <div class="relative h-screen bg-cover bg-center bg-no-repeat bg-image">
+  <!-- Overlay semi-transparent pour lisibilité -->
+  <div class="absolute inset-0 bg-white bg-opacity-70"></div>
+
+  <!-- Contenu centré -->
+  <div class="relative z-10 h-full flex flex-col justify-center items-center overflow-y-auto p-6">
+    
+    <!-- Phase de sélection -->
+    <transition name="fade-resize" mode="out-in" appear>
+      <div
+        v-if="phase === 'selection'"
+        :key="nbJoueurs"
+        class="w-full max-w-md bg-white backdrop-blur-md p-8 rounded-2xl shadow-2xl"
+      >
+        <h2 class="text-3xl font-bold text-red-600 mb-6 text-center">🛒 Sélection du mode</h2>
+
+        <label class="block mb-4">
+          <span class="font-semibold">Nombre de joueurs :</span>
+          <input
+            type="number"
+            v-model="nbJoueurs"
+            min="1"
+            max="4"
+            class="border rounded px-3 py-2 mt-1 w-full"
+          />
         </label>
-      </div>
-  
-      <button @click="commencerPartie" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Commencer le jeu
-      </button>
-    </div>
-  
-    <!-- Phase de jeu -->
-    <div v-if="phase === 'jeu'" class="p-4">
-      <h2 class="text-lg font-bold mb-2">Tour de : {{ joueurs[joueurActuelIndex]?.nom }}</h2>
-      <p class="mb-1">Temps : {{ formatTemps(temps) }}</p>
-      <p class="mb-3">Score : {{ joueurs[joueurActuelIndex]?.score }}</p>
-      <div v-if="produitActuel">
-          <p><strong>Produit à trouver :</strong> {{ produitActuel.nom }}</p>
-          <p><strong>Adresse :</strong> {{ produitActuel.rayonId + produitActuel.emplacement }}</p>
-      </div>  
-      <button
-          @click="modePrise = !modePrise"
-          class="bg-blue-600 hover:bg-blue-700 transition px-4 py-2 text-white rounded shadow-md"
+
+        <transition-group
+          name="fade"
+          tag="div"
+          class="space-y-3 mb-6"
+          appear
         >
-          {{ modePrise ? '🚪 Quitter mode prise' : '🛒 Activer mode prise' }}
+          <div
+            v-for="(nom, index) in nbJoueurs"
+            :key="index"
+            class="mb-3"
+          >
+            <label class="block font-medium">
+              👤 Joueur {{ index + 1 }} :
+              <input
+                v-model="nomsJoueurs[index]"
+                class="mt-1 border rounded px-3 py-2 w-full"
+              />
+            </label>
+          </div>
+        </transition-group>
+
+        <button
+          @click="commencerPartie"
+          class="w-full bg-red-600 text-white font-semibold py-3 rounded-xl mt-4 hover:bg-red-700 transition"
+        >
+          ▶️ Commencer le jeu
         </button>
-      <!-- Grille -->
-      <div class="grid" :style="`grid-template-columns: repeat(${colonnes}, 30px);`">
-        <div
-          v-for="cell in grid"
-          :key="`${cell.x}-${cell.y}`"
-          :class="[
-            'w-7 h-7 border text-xs flex items-center justify-center cursor-pointer',
-            cell.type === 'rayon' ? 'bg-yellow-300' : 'bg-gray-100',
-            cell.x === playerPosition.x && cell.y === playerPosition.y ? 'border-4 border-red-500' : '',
-          ]"
-          @click="selectCell(cell)"
-        >
-          {{ cell.rayonId || '' }}
+      </div>
+    </transition>
+
+    <!-- Phase de jeu -->
+    <div v-if="phase === 'jeu'" class="w-full max-w-4xl bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl space-y-8">
+  <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-red-600 space-y-4">
+    <h2 class="text-2xl font-bold text-gray-800">
+      🎮 Tour de : <span class="text-red-600">{{ joueurs[joueurActuelIndex]?.nom }}</span>
+    </h2>
+    <div class="flex items-center justify-between">
+      <p>⏱ Temps : <strong>{{ formatTemps(temps) }}</strong></p>
+      <p>🏆 Score : <strong>{{ joueurs[joueurActuelIndex]?.score }}</strong></p>
+    </div>
+
+    <div v-if="produitActuel" class="bg-red-50 p-4 rounded-lg border border-red-200 shadow-inner text-center space-y-3">
+  <h3 class="text-lg font-semibold text-red-700 flex justify-center items-center gap-2">
+    🧺 Produit à trouver :
+    <span class="text-xl font-bold text-red-900">{{ produitActuel.nom }}</span>
+  </h3>
+  <p class="text-gray-700 text-sm flex justify-center items-center gap-1">
+    📍 Adresse :
+    <span class="bg-red-100 text-red-800 font-bold px-2 py-1 rounded">
+      {{ produitActuel.rayonId + produitActuel.emplacement }}
+    </span>
+  </p>
+</div>
+
+<div class="flex justify-center">
+  <button
+    @click="modePrise = !modePrise"
+    class="mt-4 bg-blue-600 text-white font-semibold px-5 py-2 rounded-lg hover:bg-blue-700 transition"
+  >
+    {{ modePrise ? '🚪 Quitter mode prise' : '🛒 Activer mode prise' }}
+  </button>
+</div>
+
+  </div>
+
+  <div v-if="decompteActif" class="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
+    <div class="text-white text-6xl font-bold animate-bounce">
+        {{ decompte }}
+    </div>
+  </div>
+  <!-- Grille centrée -->
+  <div class="flex justify-center">
+    <div class="grid gap-2" :style="`grid-template-columns: repeat(${colonnes}, 30px);`">
+      <div
+        v-for="cell in grid"
+        :key="`${cell.x}-${cell.y}`"
+        :class="[
+          'w-8 h-8 text-xs flex items-center justify-center rounded shadow-sm transition-all duration-200',
+          cell.type === 'rayon' ? 'bg-yellow-400 text-black font-bold' : 'bg-gray-100',
+          cell.x === playerPosition.x && cell.y === playerPosition.y ? 'ring-2 ring-red-500' : ''
+        ]"
+      >
+        {{ cell.rayonId || '' }}
+      </div>
+    </div>
+  </div>
+
+
+      <!-- Mode prise -->
+      <div v-if="modePrise && selectedRayon" class="bg-yellow-100 p-4 rounded-lg shadow">
+        <h3 class="text-lg font-semibold text-yellow-700">📦 Rayon {{ selectedRayon }}</h3>
+        <p>🧍 Position joueur : {{ playerPosition.x }} / {{ playerPosition.y }}</p>
+
+        <div v-if="produitsParRayon[selectedRayon]?.produits" class="mt-2">
+          <label class="block font-medium mb-1">🛍 Choisis un produit :</label>
+          <select v-model="produitSelectionne" @change="validerProduit" class="w-full p-2 rounded border">
+            <option disabled value="">-- Sélectionner un produit --</option>
+            <option
+              v-for="(produit, index) in produitsParRayon[selectedRayon].produits"
+              :key="index"
+              :value="produit.nom"
+            >
+              {{ produit.nom }} - {{ produit.quantite }}
+            </option>
+          </select>
         </div>
       </div>
 
-      <!-- Détails (uniquement si en mode prise + à côté d’un rayon) -->
-        <div v-if="modePrise && selectedRayon" class="details-section">
-          <div class="info-panel">
-            <h3>Détails du rayon {{ selectedRayon }}</h3>
-            <p><strong>Position joueur :</strong> {{ playerPosition.x }} / {{ playerPosition.y }}</p>
-          </div>
-      
-          <div v-if="produitsParRayon[selectedRayon]?.produits" class="product-panel">
-            <h3>Choisis le bon produit :</h3>
-            <select v-model="produitSelectionne" @change="validerProduit">
-              <option disabled value="">-- Sélectionner un produit --</option>
-              <option
-                v-for="(produit, index) in produitsParRayon[selectedRayon].produits"
-                :key="index"
-                :value="produit.nom"
-              >
-                {{ produit.nom }} - {{ produit.quantite }}
-              </option>
-            </select>
-          </div>
-        </div>
-  
-      <div class="mt-4">
-        <p class="mb-2">Rayon sélectionné : {{ selectedRayon || 'Aucun' }}</p>
-        <div v-if="selectedRayon">
-          <label for="produit">Choisis un produit :</label>
-          <select id="produit" v-model="produitSelectionne" class="border ml-2">
-            <option disabled value="">-- Choisir --</option>
-            <option
-              v-for="produit in produitsParRayon[selectedRayon]?.produits || []"
-              :key="produit.nom"
-              :value="produit.nom"
-            >
-              {{ produit.nom }}
-            </option>
-          </select>
-          <button @click="validerProduit" class="ml-4 bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600">
-            Valider
-          </button>
-        </div>
-        <p class="mt-2 text-sm">{{ message }}</p>
+      <!-- Bouton suivant -->
+      <div v-if="jeuEnPause" class="text-center">
+        <button
+          @click="recommencerTour"
+          class="mt-4 bg-red-600 text-white px-4 py-2 rounded hover:bg-red-700"
+        >
+          👉 Joueur Suivant
+        </button>
       </div>
-      <!-- Bouton de reprise -->
-        <div v-if="jeuEnPause">
-          <button @click="recommencerTour" class="mt-4 bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-            Joueur Suivant
-          </button>
-        </div>
     </div>
-  
+
+    <!-- Résultat -->
     <!-- Phase de résultat -->
-    <div v-if="phase === 'resultat'" class="p-4">
-      <h2 class="text-xl font-bold mb-4">🎉 Fin de la partie !</h2>
-      <table class="table-auto border border-collapse w-full mb-4">
-        <thead class="bg-gray-200">
-          <tr>
-            <th class="border px-4 py-2">Joueur</th>
-            <th class="border px-4 py-2">Score</th>
-            <th class="border px-4 py-2">Temps</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr
-            v-for="joueur in joueurs.slice().sort((a, b) => b.score - a.score || a.temps - b.temps)"
-            :key="joueur.nom"
-          >
-            <td class="border px-4 py-2">{{ joueur.nom }}</td>
-            <td class="border px-4 py-2">{{ joueur.score }}</td>
-            <td class="border px-4 py-2">{{ formatTemps(joueur.temps) }}</td>
-          </tr>
-        </tbody>
-      </table>
-  
-      <button @click="phase = 'selection'" class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700">
-        Rejouer
-      </button>
-    </div>
-  </template>
+<div v-if="phase === 'resultat'" class="p-6 max-w-3xl mx-auto space-y-6 bg-white shadow rounded-2xl backdrop-blur-md">
+  <h2 class="text-3xl font-bold text-green-700 text-center">🎉 Fin de la partie !</h2>
+
+  <div class="bg-green-50 border-l-4 border-green-500 p-4 rounded-lg shadow text-center">
+    <p class="text-xl font-semibold text-green-800">
+      🏆 Gagnant : 
+      <span class="font-bold text-green-900">
+        {{
+          joueurs
+            .slice()
+            .sort((a, b) => b.score - a.score || a.temps - b.temps)[0].nom
+        }}
+      </span>
+      avec 
+      <span class="font-bold">{{ joueurs.slice().sort((a, b) => b.score - a.score || a.temps - b.temps)[0].score }}</span> 
+      points en 
+      <span class="font-bold">{{ formatTemps(joueurs.slice().sort((a, b) => b.score - a.score || a.temps - b.temps)[0].temps) }}</span>
+    </p>
+  </div>
+
+  <table class="w-full table-auto border-collapse">
+    <thead class="bg-gray-200">
+      <tr>
+        <th class="border px-4 py-2 text-left">👤 Joueur</th>
+        <th class="border px-4 py-2 text-left">🏆 Score</th>
+        <th class="border px-4 py-2 text-left">⏱ Temps</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr
+        v-for="joueur in joueurs.slice().sort((a, b) => b.score - a.score || a.temps - b.temps)"
+        :key="joueur.nom"
+      >
+        <td class="border px-4 py-2">{{ joueur.nom }}</td>
+        <td class="border px-4 py-2">{{ joueur.score }}</td>
+        <td class="border px-4 py-2">{{ formatTemps(joueur.temps) }}</td>
+      </tr>
+    </tbody>
+  </table>
+
+  <div class="text-center">
+    <button
+      @click="() => {
+        nomsJoueurs = []
+        nbJoueurs = 1
+        phase = 'selection'
+      }"
+      class="bg-blue-600 text-white px-4 py-2 rounded hover:bg-blue-700"
+    >
+      🔁 Rejouer
+    </button>
+  </div>
+</div>
+
+  </div>
+</div>
+</template>
   
   
   
   <script setup>
   import { ref, onMounted } from 'vue'
   import productsData from '../data/products.json'
-  
+
   const colonnes = 20
   const lignes = 10
   const grid = []
@@ -158,6 +234,8 @@
   const nomsJoueurs = ref([])
   const phase = ref("selection") // "selection", "jeu", "resultat"
   const jeuEnPause = ref(false)
+  const decompte = ref(3)
+  const decompteActif = ref(false)
 
     watch(modePrise, (isActive) => {
       if (isActive) {
@@ -195,23 +273,43 @@
     initialiserTour()
   }
   
-  function initialiserTour() {
+  async function initialiserTour() {
   produitSelectionne.value = ""
+  modePrise.value = false
+  playerPosition.value = { x: 0, y: 0 }
+
   const joueur = joueurs.value[joueurActuelIndex.value]
   joueur.score = 0
   joueur.produitActuelIndex = 0
   joueur.listeDeCourses = genererListeDeCourses()
   produitActuel.value = joueur.listeDeCourses[joueur.produitActuelIndex]
+
   score.value = 0
   temps.value = 0
-  jeuCommence.value = true
+  jeuCommence.value = false
+  jeuEnPause.value = true
 
-  chronoInterval.value = setInterval(() => {
-    if (!jeuEnPause.value) {
-      temps.value++
+  // Décompte
+  decompteActif.value = true
+  decompte.value = 3
+
+  const interval = setInterval(() => {
+    decompte.value--
+    if (decompte.value === 0) {
+      clearInterval(interval)
+      decompteActif.value = false
+      jeuCommence.value = true
+      jeuEnPause.value = false
+
+      chronoInterval.value = setInterval(() => {
+        if (!jeuEnPause.value) {
+          temps.value++
+        }
+      }, 10)
     }
-  }, 10)
+  }, 1000)
 }
+
   
   function genererListeDeCourses() {
     const tousLesProduits = []
@@ -424,6 +522,25 @@
   border-radius: 10px;
   box-shadow: 0 0 5px rgba(0,0,0,0.1);
 }
+.bg-image{
+    background-image: url("./../assets/images/auchan-fond.png");
+}
+
+.fade-enter-active,
+.fade-leave-active,
+.fade-resize-enter-active,
+.fade-resize-leave-active {
+  transition: all 0.4s ease;
+}
+
+.fade-enter-from,
+.fade-leave-to,
+.fade-resize-enter-from,
+.fade-resize-leave-to {
+  opacity: 0;
+  transform: translateY(-10px);
+}
+
 
   </style>
   

@@ -47,6 +47,17 @@
           </div>
         </transition-group>
 
+        <label class="block mb-4">
+          <span class="font-semibold">🧺 Nombre de produits à récupérer par joueur :</span>
+          <input
+            type="number"
+            v-model.number="nombreProduits"
+            min="1"
+            max="20"
+            class="border rounded px-3 py-2 mt-1 w-full"
+          />
+        </label>
+
         <button
           @click="commencerPartie"
           class="w-full bg-red-600 text-white font-semibold py-3 rounded-xl mt-4 hover:bg-red-700 transition"
@@ -236,6 +247,8 @@
   const jeuEnPause = ref(false)
   const decompte = ref(3)
   const decompteActif = ref(false)
+  const nombreProduits = ref(2) // Valeur par défaut
+
 
     watch(modePrise, (isActive) => {
       if (isActive) {
@@ -261,17 +274,18 @@
   }
   
   function commencerPartie() {
-    phase.value = 'jeu'
-    joueurs.value = nomsJoueurs.value.map(nom => ({
-      nom,
-      score: 0,
-      temps: 0,
-      listeDeCourses: [],
-      produitActuelIndex: 0
-    }))
-    joueurActuelIndex.value = 0
-    initialiserTour()
-  }
+      phase.value = 'jeu'
+      joueurs.value = nomsJoueurs.value.map(nom => ({
+        nom,
+        score: 0,
+        temps: 0,
+        listeDeCourses: genererListeDeCourses(nombreProduits.value),
+        produitActuelIndex: 0
+      }))
+      joueurActuelIndex.value = 0
+      initialiserTour()
+    }
+
   
   async function initialiserTour() {
   produitSelectionne.value = ""
@@ -281,7 +295,7 @@
   const joueur = joueurs.value[joueurActuelIndex.value]
   joueur.score = 0
   joueur.produitActuelIndex = 0
-  joueur.listeDeCourses = genererListeDeCourses()
+  joueur.listeDeCourses = genererListeDeCourses(nombreProduits.value)
   produitActuel.value = joueur.listeDeCourses[joueur.produitActuelIndex]
 
   score.value = 0
@@ -311,20 +325,21 @@
 }
 
   
-  function genererListeDeCourses() {
-    const tousLesProduits = []
-    for (const rayonId in productsData) {
-      const produits = productsData[rayonId].produits || productsData[rayonId]
-      produits.forEach(produit => {
-        tousLesProduits.push({
-          ...produit,
-          rayonId,
-          position: { x: productsData[rayonId].x, y: productsData[rayonId].y }
-        })
+function genererListeDeCourses(nombre = 2) {
+  const tousLesProduits = []
+  for (const rayonId in productsData) {
+    const produits = productsData[rayonId].produits || productsData[rayonId]
+    produits.forEach(produit => {
+      tousLesProduits.push({
+        ...produit,
+        rayonId,
+        position: { x: productsData[rayonId].x, y: productsData[rayonId].y }
       })
-    }
-    return tousLesProduits.sort(() => 0.5 - Math.random()).slice(0, 2)
+    })
   }
+
+  return tousLesProduits.sort(() => 0.5 - Math.random()).slice(0, nombre)
+}
   
   function validerProduit() {
     const joueur = joueurs.value[joueurActuelIndex.value]
@@ -352,17 +367,16 @@
     setTimeout(() => { message.value = "" }, 2000)
   }
   
-  function passerAuJoueurSuivant() {
-    joueurActuelIndex.value++
-    if (joueurActuelIndex.value >= joueurs.value.length) {
-      phase.value = "resultat"
-      jeuCommence.value = false
-    } else {
-      // Mise en pause après chaque tour
-      jeuEnPause.value = true
-      clearInterval(chronoInterval.value)
-    }
+  async function passerAuJoueurSuivant() {
+  joueurActuelIndex.value++
+  if (joueurActuelIndex.value >= joueurs.value.length) {
+    phase.value = "resultat"
+    jeuCommence.value = false
+  } else {
+    // Relancer le tour du joueur suivant
+    await initialiserTour()
   }
+}
   
   function recommencerTour() {
     jeuEnPause.value = false

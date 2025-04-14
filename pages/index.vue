@@ -136,7 +136,7 @@
   import productsData from '../data/products.json'
   
   const colonnes = 20
-  const lignes = 8
+  const lignes = 10
   const grid = []
   const produitsParRayon = ref({})
   const listeDeCourses = ref([])
@@ -158,6 +158,22 @@
   const nomsJoueurs = ref([])
   const phase = ref("selection") // "selection", "jeu", "resultat"
   const jeuEnPause = ref(false)
+
+    watch(modePrise, (isActive) => {
+      if (isActive) {
+        const { x, y } = playerPosition.value
+        const voisins = [
+          getCell(x - 1, y),
+          getCell(x + 1, y),
+          getCell(x, y - 1),
+          getCell(x, y + 1)
+        ]
+        const rayonCible = voisins.find(c => c?.type === 'rayon')
+        selectedRayon.value = rayonCible?.rayonId || null
+      } else {
+        selectedRayon.value = null
+      }
+    })
 
   function formatTemps(temps) {
     const minutes = Math.floor(temps / 6000)

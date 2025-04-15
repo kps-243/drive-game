@@ -1,69 +1,154 @@
 {
     "F00": {
-      "x": 19,
-      "y": 8,
+      "x": 2, "y": 2,
       "produits": [
-        { "nom": "Lait", "quantite": 12, "emplacement": "A1" },
-        { "nom": "Yaourt", "quantite": 6, "emplacement": "A2" },
-        { "nom": "Fromage", "quantite": 10, "emplacement": "A3" },
-        { "nom": "Beurre", "quantite": 5, "emplacement": "A4" },
-        { "nom": "Crème fraîche", "quantite": 8, "emplacement": "A5" }
+        { "nom": "Lait", "quantite": 10, "emplacement": "A1" },
+        { "nom": "Beurre", "quantite": 5, "emplacement": "A2" },
+        { "nom": "Yaourt", "quantite": 8, "emplacement": "A3" },
+        { "nom": "Crème fraîche", "quantite": 4, "emplacement": "A4" },
+        { "nom": "Lait d'amande", "quantite": 6, "emplacement": "A5" }
       ]
     },
     "F01": {
-      "x": 12,
-      "y": 7,
+      "x": 6, "y": 2,
       "produits": [
-        { "nom": "Pomme", "quantite": 20, "emplacement": "B1" },
-        { "nom": "Poire", "quantite": 10, "emplacement": "B2" },
-        { "nom": "Banane", "quantite": 15, "emplacement": "B3" },
-        { "nom": "Orange", "quantite": 8, "emplacement": "B4" },
-        { "nom": "Fraises", "quantite": 5, "emplacement": "B5" }
+        { "nom": "Fromage", "quantite": 12, "emplacement": "B1" },
+        { "nom": "Mozzarella", "quantite": 6, "emplacement": "B2" },
+        { "nom": "Gruyère", "quantite": 7, "emplacement": "B3" },
+        { "nom": "Brie", "quantite": 3, "emplacement": "B4" },
+        { "nom": "Parmesan", "quantite": 5, "emplacement": "B5" }
       ]
     },
     "F02": {
-      "x": 3,
-      "y": 3,
+      "x": 10, "y": 2,
       "produits": [
-        { "nom": "Biscuit", "quantite": 15, "emplacement": "C1" },
-        { "nom": "Chips", "quantite": 9, "emplacement": "C2" },
-        { "nom": "Tartines", "quantite": 12, "emplacement": "C3" },
-        { "nom": "Crackers", "quantite": 7, "emplacement": "C4" },
-        { "nom": "Pain", "quantite": 25, "emplacement": "C5" }
+        { "nom": "Céréales", "quantite": 9, "emplacement": "C1" },
+        { "nom": "Pain de mie", "quantite": 8, "emplacement": "C2" },
+        { "nom": "Biscottes", "quantite": 6, "emplacement": "C3" },
+        { "nom": "Brioches", "quantite": 7, "emplacement": "C4" },
+        { "nom": "Croissants", "quantite": 5, "emplacement": "C5" }
       ]
     },
     "F03": {
-      "x": 4,
-      "y": 1,
+      "x": 14, "y": 2,
       "produits": [
-        { "nom": "Boisson gazeuse", "quantite": 5, "emplacement": "D1" },
-        { "nom": "Eau", "quantite": 20, "emplacement": "D2" },
-        { "nom": "Jus d'orange", "quantite": 18, "emplacement": "D3" },
-        { "nom": "Café", "quantite": 10, "emplacement": "D4" },
-        { "nom": "Thé", "quantite": 10, "emplacement": "D5" }
+        { "nom": "Chocolat", "quantite": 10, "emplacement": "D1" },
+        { "nom": "Biscuits", "quantite": 7, "emplacement": "D2" },
+        { "nom": "Bonbons", "quantite": 12, "emplacement": "D3" },
+        { "nom": "Pâtes à tartiner", "quantite": 6, "emplacement": "D4" },
+        { "nom": "Gaufres", "quantite": 4, "emplacement": "D5" }
       ]
     },
     "F04": {
-      "x": 11,
-      "y": 3,
+      "x": 18, "y": 2,
       "produits": [
-        { "nom": "Riz", "quantite": 8, "emplacement": "E1" },
-        { "nom": "Pâtes", "quantite": 7, "emplacement": "E2" },
-        { "nom": "Couscous", "quantite": 5, "emplacement": "E3" },
-        { "nom": "Quinoa", "quantite": 4, "emplacement": "E4" },
-        { "nom": "Lentilles", "quantite": 9, "emplacement": "E5" }
+        { "nom": "Confiture", "quantite": 5, "emplacement": "E1" },
+        { "nom": "Miel", "quantite": 3, "emplacement": "E2" },
+        { "nom": "Sirop", "quantite": 6, "emplacement": "E3" },
+        { "nom": "Tartines", "quantite": 8, "emplacement": "E4" },
+        { "nom": "Pâte de noisette", "quantite": 5, "emplacement": "E5" }
       ]
     },
     "F05": {
-      "x": 6,
-      "y": 1,
+      "x": 2, "y": 5,
       "produits": [
-        { "nom": "Jus de fruits", "quantite": 10, "emplacement": "F1" },
-        { "nom": "Légumes frais", "quantite": 13, "emplacement": "F2" },
-        { "nom": "Tomates", "quantite": 6, "emplacement": "F3" },
-        { "nom": "Concombres", "quantite": 7, "emplacement": "F4" },
-        { "nom": "Carottes", "quantite": 20, "emplacement": "F5" }
+        { "nom": "Pâtes", "quantite": 15, "emplacement": "F1" },
+        { "nom": "Riz", "quantite": 10, "emplacement": "F2" },
+        { "nom": "Couscous", "quantite": 6, "emplacement": "F3" },
+        { "nom": "Semoule", "quantite": 7, "emplacement": "F4" },
+        { "nom": "Quinoa", "quantite": 5, "emplacement": "F5" }
+      ]
+    },
+    "F06": {
+      "x": 6, "y": 5,
+      "produits": [
+        { "nom": "Lentilles", "quantite": 9, "emplacement": "G1" },
+        { "nom": "Pois chiches", "quantite": 6, "emplacement": "G2" },
+        { "nom": "Haricots rouges", "quantite": 8, "emplacement": "G3" },
+        { "nom": "Flageolets", "quantite": 7, "emplacement": "G4" },
+        { "nom": "Soja", "quantite": 4, "emplacement": "G5" }
+      ]
+    },
+    "F07": {
+      "x": 10, "y": 5,
+      "produits": [
+        { "nom": "Carottes", "quantite": 9, "emplacement": "H1" },
+        { "nom": "Tomates", "quantite": 11, "emplacement": "H2" },
+        { "nom": "Courgettes", "quantite": 6, "emplacement": "H3" },
+        { "nom": "Aubergines", "quantite": 5, "emplacement": "H4" },
+        { "nom": "Concombres", "quantite": 8, "emplacement": "H5" }
+      ]
+    },
+    "F08": {
+      "x": 14, "y": 5,
+      "produits": [
+        { "nom": "Pommes", "quantite": 10, "emplacement": "I1" },
+        { "nom": "Poires", "quantite": 7, "emplacement": "I2" },
+        { "nom": "Bananes", "quantite": 9, "emplacement": "I3" },
+        { "nom": "Oranges", "quantite": 8, "emplacement": "I4" },
+        { "nom": "Fraises", "quantite": 6, "emplacement": "I5" }
+      ]
+    },
+    "F09": {
+      "x": 18, "y": 5,
+      "produits": [
+        { "nom": "Salade", "quantite": 5, "emplacement": "J1" },
+        { "nom": "Épinards", "quantite": 4, "emplacement": "J2" },
+        { "nom": "Chou", "quantite": 7, "emplacement": "J3" },
+        { "nom": "Brocoli", "quantite": 6, "emplacement": "J4" },
+        { "nom": "Radis", "quantite": 3, "emplacement": "J5" }
+      ]
+    },
+    "F10": {
+      "x": 2, "y": 8,
+      "produits": [
+        { "nom": "Poulet", "quantite": 10, "emplacement": "K1" },
+        { "nom": "Steak", "quantite": 8, "emplacement": "K2" },
+        { "nom": "Saucisse", "quantite": 7, "emplacement": "K3" },
+        { "nom": "Jambon", "quantite": 6, "emplacement": "K4" },
+        { "nom": "Dinde", "quantite": 9, "emplacement": "K5" }
+      ]
+    },
+    "F11": {
+      "x": 6, "y": 8,
+      "produits": [
+        { "nom": "Poisson", "quantite": 5, "emplacement": "L1" },
+        { "nom": "Saumon", "quantite": 7, "emplacement": "L2" },
+        { "nom": "Thon", "quantite": 6, "emplacement": "L3" },
+        { "nom": "Colin", "quantite": 4, "emplacement": "L4" },
+        { "nom": "Crevettes", "quantite": 3, "emplacement": "L5" }
+      ]
+    },
+    "F12": {
+      "x": 10, "y": 8,
+      "produits": [
+        { "nom": "Boisson gazeuse", "quantite": 10, "emplacement": "M1" },
+        { "nom": "Eau", "quantite": 15, "emplacement": "M2" },
+        { "nom": "Jus d'orange", "quantite": 12, "emplacement": "M3" },
+        { "nom": "Jus de pomme", "quantite": 10, "emplacement": "M4" },
+        { "nom": "Limonade", "quantite": 8, "emplacement": "M5" }
+      ]
+    },
+    "F13": {
+      "x": 14, "y": 8,
+      "produits": [
+        { "nom": "Thé", "quantite": 6, "emplacement": "N1" },
+        { "nom": "Café", "quantite": 9, "emplacement": "N2" },
+        { "nom": "Infusion", "quantite": 5, "emplacement": "N3" },
+        { "nom": "Chocolat chaud", "quantite": 4, "emplacement": "N4" },
+        { "nom": "Cappuccino", "quantite": 3, "emplacement": "N5" }
+      ]
+    },
+    "F14": {
+      "x": 18, "y": 8,
+      "produits": [
+        { "nom": "Glaçons", "quantite": 5, "emplacement": "O1" },
+        { "nom": "Yaourt à boire", "quantite": 4, "emplacement": "O2" },
+        { "nom": "Boisson énergisante", "quantite": 6, "emplacement": "O3" },
+        { "nom": "Smoothie", "quantite": 7, "emplacement": "O4" },
+        { "nom": "Thé glacé", "quantite": 8, "emplacement": "O5" }
       ]
     }
   }
+  
   

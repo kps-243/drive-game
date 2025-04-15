@@ -57,7 +57,16 @@
             class="border rounded px-3 py-2 mt-1 w-full"
           />
         </label>
-
+        <div class="bg-yellow-50 border border-yellow-300 text-yellow-900 text-sm rounded-xl mt-12 p-4 mb-6">
+          <h3 class="text-lg font-bold mb-2">📜 Règles du jeu</h3>
+          <ul class="list-disc pl-5 space-y-1">
+            <li>Chaque joueur joue à tour de rôle pour récupérer un certain nombre de produits dans les rayons.</li>
+            <li>Les produits sont tirés aléatoirement au début du tour de chaque joueur, et triés selon l'ordre des rayons (F00 → F14).</li>
+            <li>Un chronomètre démarre à chaque début de tour. Le temps total est enregistré pour chaque joueur.</li>
+            <li>🧺 <strong>Mode "prise"</strong> : activez ce mode pour récupérer un produit. Attention, rester en permanence dessus vous ralentira !</li>
+            <li>Le joueur ayant récupéré tous ses produits en un minimum de temps gagne la partie.</li>
+          </ul>
+        </div>
         <button
           @click="commencerPartie"
           class="w-full bg-red-600 text-white font-semibold py-3 rounded-xl mt-4 hover:bg-red-700 transition"
@@ -77,6 +86,10 @@
       <p>⏱ Temps : <strong>{{ formatTemps(temps) }}</strong></p>
       <p>🏆 Score : <strong>{{ joueurs[joueurActuelIndex]?.score }}</strong></p>
     </div>
+    <p class="text-lg font-semibold mt-4">
+      🛒 Produits restants : {{ joueurs[joueurActuelIndex].listeDeCourses.length - joueurs[joueurActuelIndex].produitActuelIndex }}
+    </p>
+
 
     <div v-if="produitActuel" class="bg-red-50 p-4 rounded-lg border border-red-200 shadow-inner text-center space-y-3">
   <h3 class="text-lg font-semibold text-red-700 flex justify-center items-center gap-2">
@@ -326,20 +339,38 @@
 
   
 function genererListeDeCourses(nombre = 2) {
-  const tousLesProduits = []
-  for (const rayonId in productsData) {
+  const tousLesProduitsParRayon = []
+
+  // Trie les rayons par ordre alphabétique (F00, F01, ...)
+  const rayonsTries = Object.keys(productsData).sort()
+
+  // Pour chaque rayon trié, ajoute ses produits à la liste
+  for (const rayonId of rayonsTries) {
     const produits = productsData[rayonId].produits || productsData[rayonId]
     produits.forEach(produit => {
-      tousLesProduits.push({
+      tousLesProduitsParRayon.push({
         ...produit,
         rayonId,
-        position: { x: productsData[rayonId].x, y: productsData[rayonId].y }
+        position: {
+          x: productsData[rayonId].x,
+          y: productsData[rayonId].y
+        }
       })
     })
   }
 
-  return tousLesProduits.sort(() => 0.5 - Math.random()).slice(0, nombre)
+  // On mélange la liste (mais on garde la structure de tri par rayon)
+  const produitsMelanges = tousLesProduitsParRayon.sort(() => 0.5 - Math.random())
+
+  // On sélectionne les X premiers produits
+  const produitsTires = produitsMelanges.slice(0, nombre)
+
+  // Puis on les retrie selon l'ordre des rayons
+  produitsTires.sort((a, b) => a.rayonId.localeCompare(b.rayonId))
+
+  return produitsTires
 }
+
   
   function validerProduit() {
     const joueur = joueurs.value[joueurActuelIndex.value]

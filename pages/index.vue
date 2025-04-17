@@ -1,12 +1,4 @@
 <template>
-    <div
-      v-if="!orientationPaysage"
-      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 text-white text-center px-6"
-    >
-      <div class="text-xl font-semibold">
-        🔁 Tourne ton écran en mode paysage pour jouer confortablement !
-      </div>
-    </div>
     <div class="relative h-screen bg-cover bg-center bg-no-repeat bg-image">
   <!-- Overlay semi-transparent pour lisibilité -->
   <div class="absolute inset-0 bg-white bg-opacity-70"></div>
@@ -88,7 +80,15 @@
     </transition>
 
     <!-- Phase de jeu -->
-    <div v-if="orientationPaysage && phase === 'jeu'" class="w-full max-w-4xl bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl space-y-8">
+    <div
+      v-if="!orientationPaysage && phase === 'jeu'"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 text-white text-center px-6"
+    >
+      <div class="text-xl font-semibold">
+        🔁 Tourne ton écran en mode paysage pour jouer confortablement !
+      </div>
+    </div>
+    <div v-if="orientationPaysage && phase === 'jeu'" class="w-full max-w-4xl bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl space-y-8"> 
   <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-red-600 space-y-4">
     <h2 class="text-2xl font-bold text-gray-800">
       🎮 Tour de : <span class="text-red-600">{{ joueurs[joueurActuelIndex]?.nom }}</span>
@@ -132,7 +132,7 @@
     </div>
   </div>
   <!-- Grille centrée -->
-  <div class="flex justify-center items-center">
+  <div class="flex justify-center items-center overflow-hidden">
     <div
       class="grid"
       :style="{

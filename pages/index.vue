@@ -1,11 +1,22 @@
 <template>
+    <div
+      v-if="!orientationPaysage"
+      class="fixed inset-0 z-50 flex items-center justify-center bg-black bg-opacity-90 text-white text-center px-6"
+    >
+      <div class="text-xl font-semibold">
+        🔁 Tourne ton écran en mode paysage pour jouer confortablement !
+      </div>
+    </div>
     <div class="relative h-screen bg-cover bg-center bg-no-repeat bg-image">
   <!-- Overlay semi-transparent pour lisibilité -->
   <div class="absolute inset-0 bg-white bg-opacity-70"></div>
 
   <!-- Contenu centré -->
   <div class="relative z-10 h-full flex flex-col justify-center items-center overflow-y-auto p-6">
-    
+    <h1 class="text-3xl sm:text-4xl md:text-5xl font-extrabold text-white text-red-600 bg-white rounded-xl text-center px-4 py-2 mt-32 mb-12 drop-shadow-lg">
+      Drive Game 
+    </h1>
+
     <!-- Phase de sélection -->
     <transition name="fade-resize" mode="out-in" appear>
       <div
@@ -13,7 +24,7 @@
         :key="nbJoueurs"
         class="w-full max-w-md bg-white backdrop-blur-md p-8 rounded-2xl shadow-2xl"
       >
-        <h2 class="text-3xl font-bold text-red-600 mb-6 text-center">🛒 Sélection du mode</h2>
+        <h2 class="text-3xl font-bold mb-6 text-center">🛒 Sélection du mode</h2>
 
         <label class="block mb-4">
           <span class="font-semibold">Nombre de joueurs :</span>
@@ -77,7 +88,7 @@
     </transition>
 
     <!-- Phase de jeu -->
-    <div v-if="phase === 'jeu'" class="w-full max-w-4xl bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl space-y-8">
+    <div v-if="orientationPaysage && phase === 'jeu'" class="w-full max-w-4xl bg-white/80 backdrop-blur-md p-6 rounded-2xl shadow-xl space-y-8">
   <div class="bg-white rounded-xl p-6 shadow-lg border-l-4 border-red-600 space-y-4">
     <h2 class="text-2xl font-bold text-gray-800">
       🎮 Tour de : <span class="text-red-600">{{ joueurs[joueurActuelIndex]?.nom }}</span>
@@ -121,13 +132,22 @@
     </div>
   </div>
   <!-- Grille centrée -->
-  <div class="flex justify-center">
-    <div class="grid gap-2" :style="`grid-template-columns: repeat(${colonnes}, 30px);`">
+  <div class="flex justify-center items-center">
+    <div
+      class="grid"
+      :style="{
+        display: 'grid',
+        gridTemplateColumns: `repeat(${colonnes}, 1fr)`,
+        gridTemplateRows: `repeat(${lignes}, 1fr)`,
+        width: grilleSize + 'px',
+        height: grilleSize * (lignes / colonnes) + 'px',
+      }"
+    >
       <div
         v-for="cell in grid"
         :key="`${cell.x}-${cell.y}`"
         :class="[
-          'w-8 h-8 text-xs flex items-center justify-center rounded shadow-sm transition-all duration-200',
+          'lg:w-8 lg:h-8 w-4 h-4 text-xs flex items-center justify-center rounded shadow-sm transition-all duration-200 ',
           cell.type === 'rayon' ? 'bg-yellow-400 text-black font-bold' : 'bg-gray-100',
           cell.x === playerPosition.x && cell.y === playerPosition.y ? 'ring-2 ring-red-500' : ''
         ]"
@@ -136,6 +156,17 @@
       </div>
     </div>
   </div>
+  <div v-if="!modePrise" class="flex flex-col items-center mt-6 space-y-2">
+  <div class="flex justify-center space-x-2">
+    <button @click="deplacer('haut')" class="p-3 bg-gray-300 rounded-full shadow text-xl">⬆️</button>
+  </div>
+  <div class="flex justify-center space-x-2">
+    <button @click="deplacer('gauche')" class="p-3 bg-gray-300 rounded-full shadow text-xl">⬅️</button>
+    <button @click="deplacer('bas')" class="p-3 bg-gray-300 rounded-full shadow text-xl">⬇️</button>
+    <button @click="deplacer('droite')" class="p-3 bg-gray-300 rounded-full shadow text-xl">➡️</button>
+  </div>
+</div>
+
 
 
       <!-- Mode prise -->
@@ -222,17 +253,20 @@
     >
       🔁 Rejouer
     </button>
-  </div>
-</div>
-
-  </div>
+            </div>
+        </div>
+        <div class="text-center text-sm text-gray-600 mt-4 lg:mt-8">
+          Made by
+          <a href="https://mkps.fr" target="_blank" class="underline hover:text-purple-700 font-semibold">Morgan KPASSI 💜</a>
+        </div>
+    </div>
 </div>
 </template>
   
   
   
   <script setup>
-  import { ref, onMounted } from 'vue'
+  import { ref, onMounted, onBeforeUnmount } from 'vue'
   import productsData from '../data/products.json'
 
   const colonnes = 20
@@ -261,6 +295,10 @@
   const decompte = ref(3)
   const decompteActif = ref(false)
   const nombreProduits = ref(2) // Valeur par défaut
+  const isMobile = ref(false)
+  const grilleSize = ref(0)
+  const orientationPaysage = ref(true)
+
 
 
     watch(modePrise, (isActive) => {
@@ -337,6 +375,9 @@
   }, 1000)
 }
 
+const checkOrientation = () => {
+  orientationPaysage.value = window.innerWidth > window.innerHeight
+}
   
 function genererListeDeCourses(nombre = 2) {
   const tousLesProduitsParRayon = []
@@ -414,8 +455,31 @@ function genererListeDeCourses(nombre = 2) {
     initialiserTour() // Démarre le tour du joueur actuel
   }
 
+  function deplacer(direction) {
+      if (direction === 'haut') movePlayer(0, -1)
+      if (direction === 'bas') movePlayer(0, 1)
+      if (direction === 'gauche') movePlayer(-1, 0)
+      if (direction === 'droite') movePlayer(1, 0)
+    }
+
+    function updateGrilleSize() {
+      const largeur = window.innerWidth
+      const hauteur = window.innerHeight
+
+      // on prend 90% du plus petit côté
+      const taille = Math.min(largeur, hauteur) * 0.9
+      grilleSize.value = taille
+    }
+
   
   onMounted(() => {
+
+    checkOrientation()
+    window.addEventListener('resize', checkOrientation)
+
+    updateGrilleSize()
+    window.addEventListener('resize', updateGrilleSize)
+
     produitsParRayon.value = productsData
     for (let y = 0; y < lignes; y++) {
       for (let x = 0; x < colonnes; x++) {
@@ -443,7 +507,11 @@ function genererListeDeCourses(nombre = 2) {
       if (e.key === 'ArrowRight') movePlayer(1, 0)
     })
   })
-  
+
+  onBeforeUnmount(() => {
+      window.removeEventListener('resize', checkOrientation)
+    })
+
   let canMove = true
   function movePlayer(xDelta, yDelta) {
     if (!canMove) return
@@ -468,6 +536,7 @@ function genererListeDeCourses(nombre = 2) {
       }
     }
   }
+
   
   function getCell(x, y) {
     return grid.find(c => c.x === x && c.y === y)
